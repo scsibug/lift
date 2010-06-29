@@ -17,7 +17,7 @@
 package net.liftweb {
 package mongodb {
 
-import java.util.Date
+import java.util.{Date, UUID}
 import java.util.regex.Pattern
 
 import org.specs.Specification
@@ -51,7 +51,7 @@ object MongoDirectExamples extends Specification {
 
   def checkMongoIsRunning = isMongoRunning must beEqualTo(true).orSkipExample
 
-  import com.mongodb.util.JSON // Mongo parser/serializer
+  //import com.mongodb.util.JSON // Mongo parser/serializer
 
   val debug = false
 
@@ -300,6 +300,23 @@ object MongoDirectExamples extends Specification {
         coll.drop
       }
     })
+  }
+
+  "UUID Example" in {
+
+    checkMongoIsRunning
+
+    MongoDB.useCollection("examples.uuid") { coll =>
+      val uuid = UUID.randomUUID
+      val dbo = new BasicDBObject("_id", uuid).append("name", "dbo")
+      coll.save(dbo)
+
+      val qry = new BasicDBObject("_id", uuid)
+      val dbo2 = coll.findOne(qry)
+
+      dbo2.get("_id") must_== dbo.get("_id")
+      dbo2.get("name") must_== dbo.get("name")
+    }
   }
 
   doAfterSpec {
