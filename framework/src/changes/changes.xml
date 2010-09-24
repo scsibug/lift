@@ -37,7 +37,7 @@
     </action>
    see http://maven.apache.org/plugins/maven-changes-plugin/usage.html for full guide
    -->
-    <release version="${project.version}" date="${publishDate}" description="Lift 2.1 Snapshot Release">
+    <release version="2.1" date="2010-09-24" description="Lift 2.1 Final Release">
     </release>
 
     <release version="2.1-RC3" date="2010-09-21" description="Lift 2.1 Release Candidate 3">
