@@ -218,6 +218,22 @@ class Database(couch: Request, database: String) extends Request(couch / databas
       case Full(id) => this(id.s) <<<# doc
       case _    => this     <<#  doc
     }
+  
+  def storeDesign(v: DesignProvider, http: Http) {
+    try {
+      val designCurrent = http(design(v.designName).fetch)
+      val (couchFields, appFields) = designCurrent.obj.partition(x => x.name == "_id" || x.name == "_rev")
+      if (appFields.sortBy(_.name) != v.design.obj.sortBy(_.name)) {
+        //TODO log println("update")
+        val viewsNew = JObject(couchFields ::: v.design.obj)
+        http(design(v.designName) put viewsNew)
+      }
+    } catch {
+      case StatusCode(404, _) => {
+        Http(design(v.designName) put v.design)
+      }
+    }
+  }
 }
 
 /** Case class that holds information about a couch database, as retrieved using GET /database */

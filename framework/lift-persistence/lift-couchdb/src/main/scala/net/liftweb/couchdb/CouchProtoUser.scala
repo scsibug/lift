@@ -14,12 +14,6 @@ trait CouchMegaProtoUser[T <: CouchMegaProtoUser[T]] extends CouchRecord[T] with
   def userIdAsString: String = id.valueBox.getOrElse("")
 }
 
-trait DesignProvider {
-  def typeName : String	
-  def designName: String = typeName
-  def design: JObject
-}
-
 trait CouchMetaMegaProtoUser[ModelType <: CouchMegaProtoUser[ModelType]] extends CouchMetaRecord[ModelType] with MetaMegaProtoUser[ModelType] with DesignProvider { self: ModelType =>
 
   def design: JObject = {

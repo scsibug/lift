@@ -19,8 +19,9 @@ class CouchProtoUserTest extends Specification with JUnit with ScalaCheck {
 
   doBeforeSpec {
     val database = new Database("test_users")
-    database.createIfNotCreated(new Http())
-    storeDesign(UserT, database)
+    val http = new Http()
+    database.createIfNotCreated(http)
+    database.storeDesign(UserT, http)
     CouchDB.defaultDatabase = database
   }
 
@@ -78,25 +79,10 @@ class CouchProtoUserTest extends Specification with JUnit with ScalaCheck {
 
   case class matchUserT(v: UserT) extends Matcher[UserT] {
     def apply(other: => UserT) = {
-      ((beEqualTo(_: String)) ^^^ ((_: UserT).id.asString) and //        (beEqualTo(_:String)) ^^^ ((_:UserT).firstName.asString) and
+      ((beEqualTo(_: String)) ^^^ ((_: UserT).id.asString) and
+//        (beEqualTo(_:String)) ^^^ ((_:UserT).firstName.asString) and
 //        (beEqualTo(_:String)) ^^^ ((_:UserT).lastName.asString) and
-(beEqualTo(_: String)) ^^^ ((_: UserT).email.asString))(v)(other)
-    }
-  }
-
-  def storeDesign(v: DesignProvider, database: Database = CouchDB.defaultDatabase) {
-    try {
-      val designCurrent = Http(database.design(v.designName).fetch)
-      val (couchFields, appFields) = designCurrent.obj.partition(x => x.name == "_id" || x.name == "_rev")
-      if (appFields.sortBy(_.name) != v.design.obj.sortBy(_.name)) {
-        //TODO log println("update")
-        val viewsNew = JObject(couchFields ::: v.design.obj)
-        Http(database.design(v.designName) put viewsNew)
-      }
-    } catch {
-      case StatusCode(404, _) => {
-        Http(database.design(v.designName) put v.design)
-      }
+      (beEqualTo(_: String)) ^^^ ((_: UserT).email.asString))(v)(other)
     }
   }
 
