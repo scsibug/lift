@@ -27,20 +27,15 @@ import Helpers._
 import S._
 
 
-object EmailField {
-  val emailPattern = Pattern.compile("^[a-z0-9._%-]+@(?:[a-z0-9-]+\\.)+[a-z]{2,4}$")
-  def validEmailAddr_?(email: String): Boolean = emailPattern.matcher(email).matches
-}
+trait EmailTypedField extends RegExpTypedField {
+  override def regExp: Box[String] = Full("""^[A-z0-9._%-\+]+@(?:[A-z0-9-]+\.)+[a-z]{2,4}$""")
+  override def invalidFormatMsg: Box[String] = Full("invalid.email.address")
 
-trait EmailTypedField extends TypedField[String] {
-  private def validateEmail(emailValue: ValueType): List[FieldError] =
-    toBoxMyType(emailValue) match {
-      case Full(email) if EmailField.validEmailAddr_?(email) => Nil
-      case _ => Text(S.??("invalid.email.address"))
-    }
-
-  override def validations = validateEmail _ :: Nil
-}  
+  override protected def elemAttr: MetaData = isHtml5 match {
+    case true => new UnprefixedAttribute("type", "email",  new UnprefixedAttribute("autocomplete", "on",super.elemAttr))
+    case _ => super.elemAttr
+  }
+} 
 
 class EmailField[OwnerType <: Record[OwnerType]](rec: OwnerType, maxLength: Int)
   extends StringField[OwnerType](rec, maxLength) with EmailTypedField
