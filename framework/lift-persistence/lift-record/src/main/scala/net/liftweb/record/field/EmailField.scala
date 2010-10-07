@@ -28,7 +28,10 @@ import S._
 
 
 trait EmailTypedField extends RegExpTypedField {
-  override def regExp: Box[String] = Full("""^[A-z0-9._%-\+]+@(?:[A-z0-9-]+\.)+[a-z]{2,4}$""")
+  /**
+   *  @see http://www.regular-expressions.info/email.html
+   */ 	
+  override def regExp: Box[String] = Full("""^[A-z0-9._%+-]+@(?:[A-z0-9-]+\.)+[a-z]{2,4}$""")
   override def invalidFormatMsg: Box[String] = Full("invalid.email.address")
 
   override protected def elemAttr: MetaData = isHtml5 match {
