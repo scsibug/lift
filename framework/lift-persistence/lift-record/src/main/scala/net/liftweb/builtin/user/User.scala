@@ -108,8 +108,6 @@ trait UserService[ModelType <: UserDetails] extends UserFinders[ModelType]{
 
   def matchPassword(user: ModelType, password: String): Boolean
 
-  def resetUniqueId(user: ModelType): this.type
-
   def saveUser(user: ModelType): Unit
 
   //def authenticate(authentication: Authentication) = authenticationProvider.authenticate(authentication)
@@ -168,8 +166,16 @@ trait UserOperations[ModelType <: UserDetails] {
   protected def superUser_? : Boolean = userService.currentUser.map(_.userSuperUser_?) openOr false
 
   def homePage = "/"
-  def thePath(end: String): List[String] = basePath ::: List(end)
-
+  def thePath(end: String): List[String] = basePath :+ end
+  
+  /**
+   * should be override to made LocParams transformation for every entry (eg : append a LocGroup)
+   * @param params
+   * @return
+   */
+  
+  def transformMenuLocParams(params : List[LocParam[Unit]] ) : List[LocParam[Unit]] = params
+  
   /**
    * The menu item for login (make this "Empty" to disable)
    */
@@ -180,10 +186,11 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for login.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def loginMenuLocParams: List[LocParam[Unit]] =
+  protected def loginMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     If(notLoggedIn_? _, S.??("already.logged.in")) ::
     Template(() => wrapIt(login)) ::
     Nil
+  )
 
   /**
    * The menu item for logout (make this "Empty" to disable)
@@ -195,10 +202,11 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for logout.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def logoutMenuLocParams: List[LocParam[Unit]] =
+  protected def logoutMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Template(() => wrapIt(logout)) ::
     testLogginIn ::
     Nil
+  )
 
   /**
    * The menu item for creating the user/sign up (make this "Empty" to disable)
@@ -210,11 +218,12 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for creating the user/sign up.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def createUserMenuLocParams: List[LocParam[Unit]] =
+  protected def createUserMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Template(() => wrapIt(signupFunc.map(_()) openOr signup)) ::
     If(notLoggedIn_? _, S.??("logout.first")) ::
     Nil
-
+  )
+  
   /**
    * The menu item for lost password (make this "Empty" to disable)
    */
@@ -225,11 +234,12 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for lost password.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def lostPasswordMenuLocParams: List[LocParam[Unit]] =
+  protected def lostPasswordMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Template(() => wrapIt(lostPassword)) ::
     If(notLoggedIn_? _, S.??("logout.first")) ::
     Nil
-
+  )
+  
   /**
    * The menu item for resetting the password (make this "Empty" to disable)
    */
@@ -240,12 +250,13 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for resetting the password.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def resetPasswordMenuLocParams: List[LocParam[Unit]] =
+  protected def resetPasswordMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Hidden ::
     Template(() => wrapIt(passwordReset(snarfLastItem))) ::
     If(notLoggedIn_? _, S.??("logout.first")) ::
     Nil
-
+  )
+  
   /**
    * The menu item for editing the user (make this "Empty" to disable)
    */
@@ -256,11 +267,12 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for editing the user.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def editUserMenuLocParams: List[LocParam[Unit]] =
+  protected def editUserMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Template(() => wrapIt(editFunc.map(_()) openOr edit)) ::
     testLogginIn ::
     Nil
-
+  )
+  
   /**
    * The menu item for changing password (make this "Empty" to disable)
    */
@@ -271,11 +283,12 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for changing password.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def changePasswordMenuLocParams: List[LocParam[Unit]] =
+  protected def changePasswordMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Template(() => wrapIt(changePassword)) ::
     testLogginIn ::
     Nil
-
+  )
+  
   /**
    * The menu item for validating a user (make this "Empty" to disable)
    */
@@ -286,12 +299,13 @@ trait UserOperations[ModelType <: UserDetails] {
    * The LocParams for the menu item for validating a user.
    * Overwrite in order to add custom LocParams. Attention: Not calling super will change the default behavior!
    */
-  protected def validateUserMenuLocParams: List[LocParam[Unit]] =
+  protected def validateUserMenuLocParams: List[LocParam[Unit]] = transformMenuLocParams(
     Hidden ::
     Template(() => wrapIt(validateUser(snarfLastItem))) ::
     If(notLoggedIn_? _, S.??("logout.first")) ::
     Nil
-
+  )
+  
   /**
   * An alias for the sitemap property
   */
