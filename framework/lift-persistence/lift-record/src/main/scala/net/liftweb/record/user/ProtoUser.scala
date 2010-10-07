@@ -235,7 +235,7 @@ trait UserRecordService[ModelType <: MegaProtoUser[ModelType]] extends MetaRecor
 
   def setUserAccountValidated(user: ModelType, validated: Boolean) = {
     user.validated(validated)
-    resetUniqueId(user).saveUser(user)
+    saveUser(user)
     this
   }
 

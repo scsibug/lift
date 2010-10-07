@@ -33,13 +33,6 @@ trait CouchMetaMegaProtoUser[ModelType <: CouchMegaProtoUser[ModelType]] extends
     ))
   }
 
-  def resetUniqueId(user: ModelType) = {
-    //TODO not implemented
-    throw new UnsupportedOperationException("resetUniqueId not implementer")
-    //    user.uniqueId.reset()
-    //    this
-  }
-
   override def validateUser(user: ModelType) = super.validateUser(user) ++ valUniqueEmail(user)
   override def validateSignup(user: ModelType): List[FieldError] = validateUser(user)
   

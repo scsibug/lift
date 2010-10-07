@@ -268,7 +268,7 @@ trait CommonUserSnippet[ModelType <: UserDetails] extends UserSnippet {
   def sendPasswordReset(email: String) {
     userService.findByEmail(email) match {
       case Full(user) if user.userValidated_? =>
-        userService.resetUniqueId(user).saveUser(user)
+        userService.saveUser(user)
         val resetLink = S.hostAndPath+
         userOperations.passwordResetPath.mkString("/", "/", "/")+user.userUniqueId
 
@@ -332,7 +332,7 @@ trait CommonUserSnippet[ModelType <: UserDetails] extends UserSnippet {
           case xs => S.error(xs)
         }
       }
-      userService.resetUniqueId(user).saveUser(user)
+      userService.saveUser(user)
 
       bind("user", xhtml,
            "pwd" -> SHtml.password_*("", S.LFuncHolder((p: List[String]) => userService.setPassword(user, p))),
